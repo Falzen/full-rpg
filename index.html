@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>items</title>
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="mainContainer">
+	<div id="playerStats">
+		<table>
+			<tr><td>maxHp <td>{player.maxHp}</td></tr>
+			<tr><td>ac <td>{player.ac}</td></tr>
+			<tr><td>str <td>{player.str}</td></tr>
+			<tr><td>const <td>{player.const}</td></tr>
+			<tr><td>intel <td>{player.intel}</td></tr>
+			<tr><td>dex <td>{player.dex}</td></tr>
+			<tr><td>luck <td>{player.luck}</td></tr>
+		</table>
+	</div>
+
+	<div id="inventory">
+		<ul>
+			<li rv-each-eq="player.backpack">
+				<p 
+				rv-class="eq.type" 
+				rv-class-isequipped="eq.isEquipped" 
+				rv-on-click="eq.toggleEquipment">
+					{ eq.name }
+					<span rv-if="eq.isEquipped" style="color: #999">(equipped)</span>
+				</p>
+			</li>
+
+		</ul>	
+	</div>
+</div>
+
+
+<!-- jquery -->
+<script	src="js/utils/jquery.js"></script>
+<script	src="js/utils/rivets.js"></script>
+<script	src="js/main.js"></script>
+
+</body>
+</html>
