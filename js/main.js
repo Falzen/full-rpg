@@ -15,6 +15,28 @@ AMELIO
 
 var player = null;
 var shop = null;
+var settings = {
+	showById: {
+		playerStats: true,
+		inventory: true,
+		shop: true
+	}
+};
+
+
+
+var shopData = {
+	name: 'Invulnerable Vagrant',
+	vendorName: 'Pumat Sols',
+	itemsList: ['Potion simple', 'Potion simple', 'Potion simple'],
+	equipmentsList: ['boots'],
+	inventory: [], // should be filled AFTER 'player' variable instanciation
+};
+
+
+
+
+
 
 $(document).ready(function() {
 	init();
@@ -25,7 +47,8 @@ function init() {
 
 	shopInit();
 
-	rivets.bind($('#mainContainer'), {player: player, shop: shop});
+	rivets.bind($('#mainContainer'), {settings: settings, player: player, shop: shop});
+	
 
 }
 
@@ -34,6 +57,7 @@ function initPlayer() {
 	player.backpack.push(new Item_Entity(allItemsByName.get('Potion simple')[0]));
 	player.backpack.push(new Equipment_Entity(allEquipmentsByName.get('sword')[0]));
 	player.backpack.push(new Equipment_Entity(allEquipmentsByName.get('boots')[0]));
+	makeIterableStats()
 }
 
 /**
@@ -49,6 +73,7 @@ function shopInit() {
 	}
 	shopData.inventory = shopInventory;
 	shop = new Shop_Entity(shopData);
+	console.log('shop : ', shop);
 }
 
 
@@ -61,15 +86,6 @@ function shopInit() {
 
 
 
-
-
-var shopData = {
-	name: 'Invulnerable Vagrant',
-	vendorName: 'Pumat Sols',
-	itemsList: ['Potion simple', 'Potion simple', 'Potion simple'],
-	equipmentsList: ['boots'],
-	inventory: [], // should be filled AFTER 'player' variable instanciation
-}
 
 
 class Shop_Entity {
@@ -99,14 +115,16 @@ class Shop_Entity {
 var playerStats = {
 	name : 'Héros',
 	level : 1,
-	maxHp: 55,
-	hp: 32,
-	ac : 13,
-	str : 16,
-	const : 15,
-	intel : 8,
-	dex : 11,
-	luck : 13,
+	stats: {
+		hp: 32,
+		maxHp: 55,
+		ac : 13,
+		str : 16,
+		const : 15,
+		intel : 8,
+		dex : 11,
+		luck : 13
+	},
 	equipped : null,
 	backpack : [],
 	skills: [],
@@ -122,20 +140,13 @@ var allItems = [
 		sellingPrice: 16,
 		iconPath: '',
 		quantity: 3,
-		doEffect: function() {
-			player.hp += 20;
-			if(player.hp > player.maxHp) {
-				player.hp = player.maxHp;
+		doEffect: function(event, rivetsBinding) {
+			player.stats.hp.value += 20;
+			if(player.stats.hp.value > player.stats.maxHp.value) {
+				player.stats.hp.value = player.stats.maxHp.value;
 			}
-			this.quantity--;
-			if(this.quantity == 0) {
-				for(let i=0; i<player.backpack.length; i++) {
-					let item = player.backpack[i];
-						if(item.quantity == 0) {
-							player.backpack.splice(i,1);
-						}
-				}
-			}
+			player.backpack.splice(rivetsBinding.index, 1);
+			makeIterableStats();
 		}
 	}
 ];
@@ -152,14 +163,16 @@ var allEquipments = [
 		sellingPrice: 16,
 		hitChance: 4, // +4 to roll
 		damageDice: '2d6',
-		maxHp: 	22,
-		hp: 	0,
-		ac: 	0,
-		str: 	0,
-		const: 	0,
-		intel: 	0,
-		dex: 	0,
-		luck: 	0
+		bonuses: {
+			maxHp: 	22,
+			hp: 	0,
+			ac: 	0,
+			str: 	0,
+			const: 	0,
+			intel: 	0,
+			dex: 	0,
+			luck: 	0
+		}
 	},
 	{
 		name: 'boots',
@@ -170,15 +183,17 @@ var allEquipments = [
 		isUseOnTouch: false,
 		buyingPrice: 25,
 		sellingPrice: 5,
-		damage: null,
-		maxHp: 	0,
-		hp: 	0,
-		ac: 	0,
-		str: 	0,
-		const: 	0,
-		intel: 	0,
-		dex: 	11,
-		luck: 	0,
+		damageDice: null,
+		bonuses: {
+			maxHp: 	0,
+			hp: 	0,
+			ac: 	0,
+			str: 	0,
+			const: 	0,
+			intel: 	0,
+			dex: 	2,
+			luck: 	0
+		}
 	}
 ];
 var allEquipmentsByName = makeMapByAttrFromList(allEquipments, 'name');
@@ -228,15 +243,16 @@ function doToggleEquipment(it) {
 
 function refreshPlayerStats() {
 	console.log('refreshPlayerStats');
-	let bonusesToApply = {
-		maxHp: 0,
-		hp: 0,
-		ac: 0,
-		str: 0,
-		const: 0,
-		intel: 0,
-		dex: 0,
-		luck: 0
+
+	// remove bonuses
+	let shouldBeFullHealth = player.stats.hp.value > player.stats.maxHp.root;
+	for(let key in player.stats) {
+		if(key == 'hp') continue;
+		player.stats[key].value = player.stats[key].root;
+		player.stats[key].totalBonus = 0;
+	}
+	if(shouldBeFullHealth) {
+		player.stats.hp.value = player.stats.maxHp.root;
 	}
 
 	for(let i=0; i<player.backpack.length; i++) {
@@ -244,23 +260,34 @@ function refreshPlayerStats() {
 		if(!item.isEquipped) {
 			continue;
 		}
-		for(let key in bonusesToApply) {
-			if(item[key] && item[key] != 0) {
-				bonusesToApply[key] += item[key];
+		for(let key in player.stats) {
+			if(item.bonuses[key] && item.bonuses[key] != 0) {
+				player.stats[key].totalBonus += item.bonuses[key];
+				console.log(key + ' bonus: ' + player.stats[key].totalBonus);
 			}
 		}
-
-	console.log('item.isEquipped : ', item.isEquipped);
-	console.log('bonusesToApply : ', bonusesToApply);
+		console.log('item.isEquipped : ', item.isEquipped);
 	}
+
 	// applying bonuses
-	player.maxHp = player.root_maxHp + bonusesToApply.maxHp;
-	player.ac = player.root_ac + bonusesToApply.ac;
-	player.str = player.root_str + bonusesToApply.str;
-	player.const = player.root_const + bonusesToApply.const;
-	player.intel = player.root_intel + bonusesToApply.intel;
-	player.dex = player.root_dex + bonusesToApply.dex;
-	player.luck = player.root_luck + bonusesToApply.luck;
+	for(let key in player.stats) {
+		player.stats[key].value += player.stats[key].totalBonus;
+	}
+	makeIterableStats();
+}
+
+function makeIterableStats() {
+	let iterableStats = [];
+	for(let key in player.stats) {
+		let oneIterableStat = {
+			name: player.stats[key].name,
+			value: player.stats[key].value,
+			root: player.stats[key].root,
+			totalBonus: player.stats[key].totalBonus
+		};
+		iterableStats.push(oneIterableStat);
+	}
+	player.iterableStats = iterableStats;
 }
 
 
@@ -329,21 +356,57 @@ class Character {
     constructor(data) {
         this.name = data.name;
         this.level = data.level;
-        this.hp = data.hp;
-        this.maxHp = data.maxHp;
-        this.ac = data.ac;
-        this.str = data.str;
-        this.const = data.const;
-        this.intel = data.intel;
-        this.dex = data.dex;
-        this.luck = data.luck;
-        this.root_maxHp = data.maxHp;
-		this.root_ac = data.ac;
-		this.root_str = data.str;
-		this.root_const = data.const;
-		this.root_intel = data.intel;
-		this.root_dex = data.dex;
-		this.root_luck = data.luck;
+        this.stats = {
+        	hp: {
+        		name: 'hp',
+        		value: data.stats.hp,
+        		root: data.stats.hp,
+        		totalBonus: 0,
+        	},
+        	maxHp: {
+        		name: 'maxHp',
+        		value: data.stats.maxHp,
+        		root: data.stats.maxHp,
+        		totalBonus: 0
+        	},
+			ac: {
+				name: 'ac',
+				value: data.stats.ac,
+				root: data.stats.ac,
+				totalBonus: 0
+			},
+			str: {
+				name: 'str',
+				value: data.stats.str,
+				root: data.stats.str,
+				totalBonus: 0
+			},
+			const: {
+				name: 'const',
+				value: data.stats.const,
+				root: data.stats.const,
+				totalBonus: 0
+			},
+			intel: {
+				name: 'intel',
+				value: data.stats.intel,
+				root: data.stats.intel,
+				totalBonus: 0
+			},
+			dex: {
+				name: 'dex',
+				value: data.stats.dex,
+				root: data.stats.dex,
+				totalBonus: 0
+			},
+			luck: {
+				name: 'luck',
+				value: data.stats.luck,
+				root: data.stats.luck,
+				totalBonus: 0
+			},
+        };
+        this.iterableStats = [];
         this.backpack = data.backpack;
         this.money = data.money;
     }
@@ -361,17 +424,29 @@ class BuyAndSell_Methods {
     	this.sellingPrice = data.sellingPrice;
     	this.buyingPrice = data.buyingPrice;
     }
-    buy() {
-        if(player.money < this.buyingPrice) {
+    buy(event, rivetsBinding) {
+    	console.log('buy()');
+    	let elem = rivetsBinding.eq ? rivetsBinding.eq : rivetsBinding.it;
+    	let buyingPrice = elem.buyingPrice;
+        if(player.money < buyingPrice) {
         	return;
         }
-        player.money -= this.buyingPrice;
-        player.backpack.push(this);
+        player.money = parseInt(player.money) - parseInt(buyingPrice);
+        var boughtElement = shop.inventory.splice(rivetsBinding.index, 1);
+        player.backpack.push(boughtElement[0]);
     }
-    sell() {
-        player.money += this.sellingPrice;
-        // TODO better item identificator for removal. Current : removes one item with same name
-        player.backpack.splice(player.backpack.findIndex(it => it.name == this.name), 1);
+    sell(event, rivetsBinding) {
+    	console.log('sell()');
+    	let elem = rivetsBinding.eq ? rivetsBinding.eq : rivetsBinding.it;
+    	if(elem.isEquipped) {
+    		elem.isEquipped = false;
+    		refreshPlayerStats();
+    	}
+
+        player.money += elem.sellingPrice;
+        var soldElement = player.backpack.splice(rivetsBinding.index, 1);
+        shop.inventory.push(soldElement[0]);
+
     }
 }
 
@@ -384,28 +459,33 @@ class Item_Entity extends BuyAndSell_Methods {
 		this.isAvailableInFight = data.isAvailableInFight;
 		this.iconPath = data.iconPath;
 		this.quantity = data.quantity;
-		// methods
 		this.doEffect = data.doEffect;
+	}
+    doEffect(event, rivetsBinding) {
+    	this.doEffect(event, rivetsBinding);
 	}
 }
 
 
 class Equipment_Entity extends BuyAndSell_Methods {
     constructor(data) {
+    	console.log('data.bonuses : ', data.bonuses);
         super(data);
-    	this.type = data.type
-		this.name = data.name
-		this.iconPath = data.iconPath
-		this.description = data.description
-		this.damageDice = data.damageDice
-		this.maxHp = data.maxHp
-		this.hp = data.hp
-		this.ac = data.ac
-		this.str = data.str
-		this.const = data.const
-		this.intel = data.intel
-		this.dex = data.dex
-		this.luck = data.luck
+    	this.type = data.type;
+		this.name = data.name;
+		this.iconPath = data.iconPath;
+		this.description = data.description;
+		this.damageDice = data.damageDice;
+		this.bonuses = {
+			maxHp : data.bonuses.maxHp,
+			hp : data.bonuses.hp,
+			ac : data.bonuses.ac,
+			str : data.bonuses.str,
+			const : data.bonuses.const,
+			intel : data.bonuses.intel,
+			dex : data.bonuses.dex,
+			luck : data.bonuses.luck,
+		};
 		this.isEquipment = true;
 		this.isEquipped = false;
 	}

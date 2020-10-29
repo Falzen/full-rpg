@@ -7,33 +7,106 @@
 </head>
 <body>
 <div id="mainContainer">
-	<div id="playerStats">
-		<table>
-			<tr><td>maxHp <td>{player.maxHp}</td></tr>
-			<tr><td>ac <td>{player.ac}</td></tr>
-			<tr><td>str <td>{player.str}</td></tr>
-			<tr><td>const <td>{player.const}</td></tr>
-			<tr><td>intel <td>{player.intel}</td></tr>
-			<tr><td>dex <td>{player.dex}</td></tr>
-			<tr><td>luck <td>{player.luck}</td></tr>
-		</table>
+	<div rv-if="settings.showById.playerStats" id="playerStats" class="screen-part">
+		<h1>Player stats</h1>
+		<div id="playerStatsContent">
+			<table>
+				<tr rv-each-stat="player.iterableStats" >
+					<td>{stat.name}</td>
+					<td rv-class-hasbonus="stat.totalBonus">{stat.value}
+						<span rv-if="stat.maxHp">/{stat.maxHp.value}</span>
+					</td>
+					<td rv-if="stat.totalBonus" style="color: darkgreen; font-size: 12px;">({stat.root} + {stat.totalBonus})</td>
+				</tr>
+				<tr>
+					<td>Money</td>
+					<td>{player.money}</td>
+				</tr>
+			</table>
+		</div>
 	</div>
 
-	<div id="inventory">
-		<ul>
-			<li rv-each-eq="player.backpack">
-				<p 
-				rv-class="eq.type" 
-				rv-class-isequipped="eq.isEquipped" 
-				rv-on-click="eq.toggleEquipment">
-					{ eq.name }
-					<span rv-if="eq.isEquipped" style="color: #999">(equipped)</span>
-				</p>
-			</li>
 
-		</ul>	
+
+	<div rv-if="settings.showById.inventory" id="inventory" class="screen-part">
+		<h1>Player inventory</h1>
+		<div id="inventoryContent">
+			<div id="equipmentsContainer">
+				<h2>Equipments</h2>
+				<ul id="equipmentsList">
+					<li rv-each-eq="player.backpack" >
+						<span
+						rv-if="eq.isEquipment" 
+						rv-class="eq.type" 
+						rv-class-isequipped="eq.isEquipped" 
+						>
+							<span rv-on-click="eq.toggleEquipment" >
+								{ eq.name }
+								<span rv-if="eq.isEquipped" style="color: #999">
+									(equipped)
+								</span>
+							</span>
+							
+							<button rv-if="settings.showById.shop" rv-on-click="eq.sell">sell</button>
+						</span>
+					</li>
+				</ul>
+			</div>
+			<div id="itemsContainer">
+				<h2>Items</h2>
+				<ul id="itemsList">
+					<li rv-each-it="player.backpack">
+						<span
+						rv-unless="it.isEquipment" 
+						rv-class="it.type" 
+						rv-class-isequipped="it.isEquipped" 
+						rv-on-click="it.doEffect">
+							{ it.name }
+							<span rv-if="eq.isEquipped" style="color: #999">(equipped)</span>
+							<button rv-if="settings.showById.shop" rv-on-click="it.sell">sell</button>
+						</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 	</div>
-</div>
+
+
+	<div rv-if="settings.showById.shop" id="shop" class="screen-part">
+		<h1>{shop.name} <span class="details">({shop.vendorName})</span></h1>
+		<div id="shopContent">
+			<div id="equipmentsContainer">
+				<h2>Equipments</h2>
+				<ul id="equipmentsList">
+					<li rv-each-eq="shop.inventory">
+						<p 
+						rv-if="eq.isEquipment"
+						rv-on-click="eq.buy">
+							{eq.name}
+						</p>
+					</li>
+				</ul>
+			</div>
+			<div id="itemsContainer">
+				<h2>Items</h2>
+				<ul id="itemsList">
+					<li rv-each-it="shop.inventory">
+						<p 
+						rv-unless="it.isEquipment"
+						rv-on-click="it.buy">
+							{it.name}
+						</p>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+</div> <!-- end #mainContainer -->
 
 
 <!-- jquery -->

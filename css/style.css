@@ -1,7 +1,20 @@
 *, *>* {
 	box-sizing: border-box;
+	padding: 0.1px;
 }
 body {
+	margin: 0;
+	color: #666;
+}
+h1 {
+	text-align: center;
+	margin-bottom: 6px;
+}
+h2 {
+	margin: 0;
+	margin-bottom: 6px;
+}
+p {
 	margin: 0;
 }
 ul {
@@ -9,5 +22,32 @@ ul {
 	padding: 0;
 	margin: 0;
 }
+.screen-part {
+	background-color: #f3f3f3;
+	margin: 6px;
+	max-width: 500px;
+}
+#playerStats td {
+	text-align: left;
+}
+#playerStats td:not(:first-child) {
+	text-align: right;
+}
+.hasbonus {
+	font-weight: bold;
+}
+.details {
+	font-size: 12px;
+	color: #aaa;
+	font-weight: normal;
+	letter-spacing: 1px;
+}
 
-
+/*#playerStatsContent,*/
+#shopContent,
+#inventoryContent {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-around;
+    width: 400px;
+}
