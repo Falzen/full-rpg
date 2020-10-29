@@ -17,9 +17,9 @@ var player = null;
 var shop = null;
 var settings = {
 	showById: {
-		playerStats: true,
-		inventory: true,
-		shop: true
+		playerStats: false,
+		inventory: false,
+		shop: false
 	}
 };
 
@@ -48,6 +48,7 @@ function init() {
 	shopInit();
 
 	rivets.bind($('#mainContainer'), {settings: settings, player: player, shop: shop});
+	navigateTo('Inn');
 	
 
 }
@@ -340,6 +341,39 @@ function computeAttack(who) {
 		// who's "weapon.damageDice"
 		// if no weapon, "1d4"
 
+}
+
+function navigateTo(name) {
+	/*
+	settings = {
+	showById: {
+		playerStats: true,
+		inventory: true,
+		shop: true
+	}
+	*/
+	settings.showById.playerStats = false;
+	settings.showById.inventory = false;
+	settings.showById.shop = false;
+	$('.destination').removeClass('is-selected');
+	$('.'+name).addClass('is-selected');
+	
+	switch(name) {
+		case 'Inn':
+			settings.showById.playerStats = true;
+			settings.showById.inventory = true;
+		break;
+
+		case 'Shop':
+			settings.showById.shop = true;
+			settings.showById.playerStats = true;
+			settings.showById.inventory = true;
+		break;
+
+		case 'City':
+		break;
+
+	}
 }
 
 
