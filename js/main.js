@@ -218,7 +218,6 @@ function doToggleEquipment(it) {
 	// unequip if already equipped
 	if(it.isEquipped) {
 		it.isEquipped = false;
-	
 		refreshPlayerStats();
 		return;
 	}
