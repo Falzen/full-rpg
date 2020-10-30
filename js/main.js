@@ -19,6 +19,10 @@ var settings = {
 	showById: {
 		playerStats: false,
 		inventory: false,
+		inventoryTabs: {
+			invItems: false,
+			invEquipments: false
+		},
 		shop: false
 	}
 };
@@ -343,6 +347,14 @@ function computeAttack(who) {
 
 }
 
+function toggleInventoryTab(tabName) {
+	settings.showById.inventoryTabs.invItems = false;
+	settings.showById.inventoryTabs.invEquipments = false;
+	settings.showById.inventoryTabs[tabName] = true;
+	$('.tab-title').removeClass('is-selected');
+	$('.'+tabName).addClass('is-selected'); 
+}
+
 function navigateTo(name) {
 	/*
 	settings = {
@@ -357,26 +369,30 @@ function navigateTo(name) {
 	settings.showById.shop = false;
 	$('.destination').removeClass('is-selected');
 	$('.'+name).addClass('is-selected');
-	
-	switch(name) {
-		case 'Inn':
-			settings.showById.playerStats = true;
-			settings.showById.inventory = true;
-		break;
+	setTimeout(function() {
+		switch(name) {
+			case 'Inn':
+				settings.showById.playerStats = true;
+				settings.showById.inventory = true;
+			break;
 
-		case 'Shop':
-			settings.showById.shop = true;
-			settings.showById.playerStats = true;
-			settings.showById.inventory = true;
-		break;
+			case 'Shop':
+				settings.showById.shop = true;
+				settings.showById.playerStats = true;
+				settings.showById.inventory = true;
+			break;
 
-		case 'City':
-		break;
+			case 'City':
+			break;
 
-	}
+			case 'test1':
+			break;
+
+			case 'test2':
+			break;
+		}
+	}, 200);
 }
-
-
 
 
 

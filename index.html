@@ -24,12 +24,22 @@
 				<img src="img/bg/town02.jpg" alt="">
 			</li>
 
+			<li onClick="navigateTo('test1')" class="destination test1">
+				<div>City2</div>
+				<img src="img/bg/inn01.jpg" alt="">
+			</li>
+
+			<li onClick="navigateTo('test2')" class="destination test2">
+				<div>City3</div>
+				<img src="img/bg/town01.jpg" alt="">
+			</li>
+
 		</ul>
 	</div>
 
 	<div rv-if="settings.showById.playerStats" id="playerStats" class="screen-part">
-		<h1>Player stats</h1>
 		<div id="playerStatsContent">
+			<h1>Player stats</h1>
 			<table>
 				<tr rv-each-stat="player.iterableStats" >
 					<td>{stat.name}</td>
@@ -44,14 +54,73 @@
 				</tr>
 			</table>
 		</div>
+
+		<div id="inventory">
+			<h1>Player inventory</h1>
+			<ul id="accordionTabBtnsbtn">
+				<li onClick="toggleInventoryTab('invItems')" class="tab-title invItems">Items</li>
+				<li onClick="toggleInventoryTab('invEquipments')" class="tab-title invEquipments">Equipments</li>
+			</ul>
+			<div id="inventoryContent">
+				<div rv-if="settings.showById.inventoryTabs.invEquipments" id="equipmentsContainer">
+					<h2>Equipments</h2>
+					<table id="equipmentsList">
+						<tr rv-each-eq="player.backpack" >
+							<td
+							rv-if="eq.isEquipment" 
+							rv-class="eq.type" 
+							rv-class-isequipped="eq.isEquipped" 
+							>
+								<span>
+									{ eq.name }
+								</span>
+							</td>
+							<td rv-if="eq.isEquipment">
+								<button rv-on-click="eq.toggleEquipment">equip</button>
+							</td>
+							<td rv-if="eq.isEquipment">
+								<!-- placeholder-->
+								<span rv-unless="eq.isEquipped" style="color: transparent">
+									(equipped)
+								</span>
+								<span rv-if="eq.isEquipped" style="color: #999">
+									(equipped)
+								</span>
+							</td>
+
+						</tr>
+					</table>
+				</div>
+				<div rv-if="settings.showById.inventoryTabs.invItems" id="itemsContainer">
+					<h2>Items</h2>
+					<table id="itemsList">
+						<tr rv-each-it="player.backpack">
+							<td
+							rv-unless="it.isEquipment" 
+							rv-class="it.type"
+							>
+								{ it.name }
+							</td>
+							<td rv-unless="it.isEquipment" >
+								<button rv-on-click="it.doEffect">use</button>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
 	</div>
 
 
-
+<!-- 
 	<div rv-if="settings.showById.inventory" id="inventory" class="screen-part">
 		<h1>Player inventory</h1>
+		<ul id="accordionTabBtnsbtn">
+			<li onClick="toggleInventoryTab('invItems')" class="tab-title invItems">Items</li>
+			<li onClick="toggleInventoryTab('invEquipments')" class="tab-title invEquipments">Equipments</li>
+		</ul>
 		<div id="inventoryContent">
-			<div id="equipmentsContainer">
+			<div rv-if="settings.showById.inventoryTabs.invEquipments" id="equipmentsContainer">
 				<h2>Equipments</h2>
 				<table id="equipmentsList">
 					<tr rv-each-eq="player.backpack" >
@@ -68,7 +137,6 @@
 							<button rv-on-click="eq.toggleEquipment">equip</button>
 						</td>
 						<td rv-if="eq.isEquipment">
-							<!-- placeholder-->
 							<span rv-unless="eq.isEquipped" style="color: transparent">
 								(equipped)
 							</span>
@@ -80,7 +148,7 @@
 					</tr>
 				</table>
 			</div>
-			<div id="itemsContainer">
+			<div rv-if="settings.showById.inventoryTabs.invItems" id="itemsContainer">
 				<h2>Items</h2>
 				<table id="itemsList">
 					<tr rv-each-it="player.backpack">
@@ -98,7 +166,7 @@
 			</div>
 		</div>
 	</div>
-
+ -->
 
 	<div rv-if="settings.showById.shop" id="shop" class="screen-part">
 		<h1>{shop.name} <span class="details">({shop.vendorName})</span></h1>
@@ -130,7 +198,7 @@
 				</table>
 			</div>
 		</div>
-
+<!-- 
 		<h1>Your inventory</h1>
 		<div id="inventoryContent">
 			<div id="equipmentsContainer">
@@ -147,10 +215,12 @@
 							</span>
 						</td>
 						<td rv-if="eq.isEquipment">
+							<button rv-if="settings.showById.shop" rv-on-click="eq.toggleEquipment">equip</button>
+						</td>
+						<td rv-if="eq.isEquipment">
 							<button rv-if="settings.showById.shop" rv-on-click="eq.sell">sell ({ eq.sellingPrice }$)</button>
 						</td>
 						<td rv-if="eq.isEquipment">
-							<!-- placeholder-->
 							<span rv-unless="eq.isEquipped" style="color: transparent">
 								(equipped)
 							</span>
@@ -173,12 +243,16 @@
 							{ it.name }
 						</td>
 						<td rv-unless="it.isEquipment" >
+							<button rv-if="settings.showById.shop" rv-on-click="it.doEffect">use</button>
+						</td>
+						<td rv-unless="it.isEquipment" >
 							<button rv-if="settings.showById.shop" rv-on-click="it.sell">sell ({ it.sellingPrice }$)</button>
 						</td>
 					</tr>
 				</table>
 			</div>
 		</div>
+ -->
 	</div>
 
 

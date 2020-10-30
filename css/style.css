@@ -8,7 +8,7 @@ body {
 }
 h1 {
 	text-align: center;
-	margin-bottom: 6px;
+    margin: 0 0 6px 0;
 }
 h2 {
 	margin: 0;
@@ -28,7 +28,8 @@ img {
 .screen-part {
 	background-color: #f3f3f3;
 	margin: 6px;
-	max-width: 500px;
+	max-width: 800px;
+	padding: 6px;
 }
 
 #navigationContainer ul {
@@ -49,14 +50,14 @@ img {
 }
 #navigationContainer li img {
 	position: absolute;
-	width: 400px;
+    width: 361px;/* +1px to avoid wierd spaces between images */
 	filter: brightness(0.4);
 }
 #navigationContainer ul li.is-selected img {
-filter: brightness(1);
+	filter: brightness(1);
 }
 #navigationContainer ul li:not(.is-selected):hover img {
-filter: brightness(0.7);
+	filter: brightness(0.7);
 }
 
 #navigationContainer li div {
@@ -70,6 +71,34 @@ filter: brightness(0.7);
 
 
 
+
+#accordionTabBtnsbtn {
+	display: flex;
+	flex-flow: row nowrap;
+	width: 100%;
+}
+#accordionTabBtnsbtn li {
+	background-color: #3c3c3c;
+	color: white;
+	letter-spacing: 2px;
+	padding: 6px 12px;
+	border: 1px solid green;
+	border-radius: 12px 12px 0px 0px;
+	cursor: pointer;
+}
+#accordionTabBtnsbtn li.is-selected {
+	background-color: black !important;
+}
+#playerStats {
+	display: flex;
+	flex-flow: row nowrap;
+}
+#playerStatsContent {
+	width: 40%;
+}
+#inventory {
+	width: 60%;
+}
 
 
 
@@ -92,10 +121,9 @@ filter: brightness(0.7);
 /*#playerStatsContent,*/
 #shopContent,
 #inventoryContent {
-	display: flex;
+	/*display: flex;
 	flex-flow: row nowrap;
-	justify-content: space-around;
-    width: 400px;
+	justify-content: space-around;*/
 }
 td button {
 	padding: 4px 8px;
